@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(venv/Scripts/python -c \"from langchain.agents import create_react_agent; print\\(''ok''\\)\")",
+      "Bash(venv/Scripts/python -c \"import streamlit; print\\(streamlit.__version__\\)\")"
+    ]
+  }
+}
