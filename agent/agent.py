@@ -50,7 +50,8 @@ async def main() -> None:
 
     graph = StateGraph(MessagesState)
     graph.add_node("agent", call_model)
-    graph.add_node("tools", ToolNode(tools))
+    graph.add_node("tools", ToolNode(tools)) #checks the last agent message for tool calls and executes them.
+    
     graph.set_entry_point("agent")
     graph.add_conditional_edges("agent", tools_condition)
     graph.add_edge("tools", "agent")

@@ -1,14 +1,20 @@
 # MCP + LangGraph Agent Demo
 
+**Live demo: [mcp.alberto.network](https://mcp.alberto.network)**
+
 A minimal but complete demo showing how a **LangGraph ReAct agent** uses tools exposed via an **MCP server** (Model Context Protocol).
 
 ## Architecture
 
 ```
+  Browser (https://mcp.alberto.network)
+           │
+           ▼
 ┌──────────────────────────────────────────────┐
-│                agent/agent.py                │
+│                   app.py                     │
+│              Streamlit UI  (port 8501)        │
 │                                              │
-│  MultiServerMCPClient  →  create_react_agent │
+│  MultiServerMCPClient  →  StateGraph (ReAct) │
 │  (langchain-mcp-adapters)   (langgraph)      │
 │                                              │
 │  Claude Haiku decides which tool to call     │
@@ -46,9 +52,30 @@ pip install -r requirements.txt
 cp .env.example .env
 # edit .env and set ANTHROPIC_API_KEY
 
-# 3. Run the demo
+# 3. Run the Streamlit app
+streamlit run app.py
+
+# Or run the headless agent demo directly
 python agent/agent.py
 ```
+
+## Deployment
+
+The app is deployed on a personal VPS using Docker and exposed via a reverse proxy.
+
+**Public URL: https://mcp.alberto.network**
+
+### Docker (production)
+
+```bash
+# Build and start
+ANTHROPIC_API_KEY=sk-... docker compose up -d
+
+# The container runs:
+# streamlit run app.py --server.port=8501 --server.address=0.0.0.0
+```
+
+The `docker-compose.yml` attaches the container to an external Docker network (`shared_net`) so a reverse proxy (e.g. Nginx/Caddy/Traefik) running on the same host can route `https://mcp.alberto.network` → `localhost:8501`.
 
 ## Expected output
 
@@ -69,10 +96,13 @@ Q: What is the current price of bitcoin?
 
 ```
 mcp-langgraph-agent/
+├── app.py             # Streamlit UI — chat interface for the agent
 ├── server/
 │   └── server.py      # FastMCP server — tool definitions
 ├── agent/
-│   └── agent.py       # LangGraph agent — connects to server, runs demo
+│   └── agent.py       # LangGraph agent — headless CLI demo
+├── Dockerfile
+├── docker-compose.yml
 ├── requirements.txt
 ├── .env.example
 └── README.md
